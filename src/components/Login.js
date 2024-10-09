@@ -1,12 +1,82 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
 
 import Header from "./Header";
+import { checkValidData } from "../utils/validate";
+import { auth } from "../utils/firebase";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/userSlice";
 
 const Login = () => {
   const [signIn, setSignIn] = useState(true);
+  const [errorText, setErrorText] = useState(null);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const email = useRef(null);
+  const name = useRef(null);
+  const password = useRef(null);
 
   const toggleHandler = () => {
     setSignIn(!signIn);
+  };
+
+  const authHandler = () => {
+    const message = checkValidData(email.current.value, password.current.value);
+    console.log(message);
+
+    setErrorText(message);
+    if (message) return;
+
+    if (!signIn) {
+      createUserWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          const user = userCredential.user;
+          console.log("USER FROM FIREBASE", user);
+          updateProfile(user, {
+            displayName: name.current.value,
+            photoURL: "https://avatars.githubusercontent.com/u/56539154?v=4",
+          })
+            .then(() => {
+              const { uid, email, displayName, photoURL } = auth.currentUser;
+              dispatch(addUser({ uid, email, displayName, photoURL }));
+              navigate("/browse");
+            })
+            .catch((error) => {
+              setErrorText(error.message);
+            });
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorText(errorCode + "-" + errorMessage);
+        });
+    } else {
+      signInWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          const user = userCredential.user;
+          console.log("USER FROM FIREBASE", user);
+          navigate("/browse");
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorText(errorCode + "-" + errorMessage);
+        });
+    }
   };
 
   return (
@@ -19,7 +89,10 @@ const Login = () => {
         />
       </div>
 
-      <form className="bg-black p-12 absolute w-3/12 my-36 mx-auto right-0 left-0 text-white rounded-lg bg-opacity-85">
+      <form
+        onSubmit={(e) => e.preventDefault()}
+        className="bg-black p-12 absolute w-3/12 my-36 mx-auto right-0 left-0 text-white rounded-lg bg-opacity-85"
+      >
         <h1 className="font-bold text-3xl p-4">
           {signIn ? "Sign In" : "Sign Up"}
         </h1>
@@ -27,6 +100,7 @@ const Login = () => {
         {!signIn && (
           <input
             type="text"
+            ref={name}
             placeholder="Full Name"
             className="p-4 my-4 w-full bg-gray-700 rounded-lg"
           />
@@ -34,17 +108,24 @@ const Login = () => {
 
         <input
           type="text"
+          ref={email}
           placeholder="Email Address"
           className="p-4 my-4 w-full bg-gray-700 rounded-lg"
         />
 
         <input
+          ref={password}
           type="password"
           placeholder="Password"
           className="p-4 my-4 w-full bg-gray-700 rounded-lg"
         />
 
-        <button className="p-4 my-6 bg-red-700 w-full rounded-lg">
+        <p className="text-red-500 font-bold text-lg py-2">{errorText}</p>
+
+        <button
+          className="p-4 my-6 bg-red-700 w-full rounded-lg"
+          onClick={authHandler}
+        >
           {signIn ? "Sign In" : "Sign Up"}
         </button>
         <p className="py-4 cursor-pointer" onClick={toggleHandler}>
