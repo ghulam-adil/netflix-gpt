@@ -40,7 +40,6 @@ const Login = () => {
       )
         .then((userCredential) => {
           const user = userCredential.user;
-          console.log("USER FROM FIREBASE", user);
           updateProfile(user, {
             displayName: name.current.value,
             photoURL: USER_AVATAR,
