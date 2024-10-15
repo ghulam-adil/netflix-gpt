@@ -27,7 +27,6 @@ const Login = () => {
 
   const authHandler = () => {
     const message = checkValidData(email.current.value, password.current.value);
-    console.log(message);
 
     setErrorText(message);
     if (message) return;
@@ -65,7 +64,6 @@ const Login = () => {
       )
         .then((userCredential) => {
           const user = userCredential.user;
-          console.log("USER FROM FIREBASE", user);
         })
         .catch((error) => {
           const errorCode = error.code;

@@ -3,3 +3,12 @@ export const LOGO =
 
 export const USER_AVATAR =
   "https://avatars.githubusercontent.com/u/56539154?v=4";
+
+export const API_OPTIONS = {
+  method: "GET",
+  headers: {
+    accept: "application/json",
+    Authorization:
+      "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4OGY3ZjljNjI4Y2M4NjcxM2E4NjBhNDNhZGVmYzVlOSIsIm5iZiI6MTcyODU4NTU5Ni4yMjc1MDUsInN1YiI6IjY3MDgxYWMwMjAwYjUzODhiNTU2NTZjNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.yhStsjYp0Op3YtkW8cMRO0A6YMotKaNhoGikKeIOnAM",
+  },
+};
